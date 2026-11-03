@@ -1,0 +1,44 @@
+# Perceptron for Breast Cancer Classification
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Step 1: Load Dataset
+data = load_breast_cancer()
+X = data.data
+y = data.target
+
+# Step 2: Preprocess Data
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+
+# Step 3: Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Step 4: Create and Train Perceptron
+model = Perceptron(max_iter=1000, eta0=0.01, random_state=42)
+model.fit(X_train, y_train)
+
+# Step 5: Predict Test Samples
+y_pred = model.predict(X_test)
+
+# Step 6: Evaluate Model
+accuracy = accuracy_score(y_test, y_pred)
+cm = confusion_matrix(y_test, y_pred)
+
+print("Breast Cancer Classification using Perceptron")
+print("Accuracy:", round(accuracy * 100, 2), "%")
+
+print("\nConfusion Matrix:")
+print(cm)
+
+# Step 7: Display Predictions
+print("\nSample Predictions:")
+for i in range(5):
+    result = data.target_names[y_pred[i]]
+    print("Sample", i + 1, ":", result)

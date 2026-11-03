@@ -1,0 +1,128 @@
+
+import pandas as pd
+import math
+from collections import Counter
+
+# Step 1: Create Dataset
+data = {
+    'Income': ['High', 'High', 'Medium', 'Low', 'Low',
+               'Medium', 'High', 'Low', 'Medium', 'High'],
+    'Employment': ['Permanent', 'Temporary', 'Permanent',
+                   'Permanent', 'Temporary', 'Temporary',
+                   'Permanent', 'Permanent', 'Temporary', 'Permanent'],
+    'Credit_History': ['Good', 'Good', 'Good', 'Bad', 'Good',
+                       'Bad', 'Good', 'Bad', 'Good', 'Bad'],
+    'Existing_Loan': ['No', 'Yes', 'No', 'Yes', 'No',
+                      'Yes', 'No', 'Yes', 'No', 'No'],
+    'Loan_Status': ['Approved', 'Approved', 'Approved',
+                    'Rejected', 'Approved', 'Rejected',
+                    'Approved', 'Rejected', 'Approved', 'Rejected']
+}
+
+df = pd.DataFrame(data)
+
+# Step 2: Calculate Entropy
+def entropy(target):
+    counts = Counter(target)
+    total = len(target)
+    result = 0
+
+    for count in counts.values():
+        p = count / total
+        result -= p * math.log2(p)
+
+    return result
+
+# Step 3: Calculate Information Gain
+def information_gain(df, attribute, target):
+    total_entropy = entropy(df[target])
+    weighted_entropy = 0
+
+    for value in df[attribute].unique():
+        subset = df[df[attribute] == value]
+        weighted_entropy += (
+            len(subset) / len(df) *
+            entropy(subset[target])
+        )
+
+    return total_entropy - weighted_entropy
+
+# Step 4: Build ID3 Decision Tree
+def id3(df, attributes, target):
+
+    # If all records belong to one class
+    if len(df[target].unique()) == 1:
+        return df[target].iloc[0]
+
+    # If no attributes remain
+    if not attributes:
+        return df[target].mode()[0]
+
+    # Select attribute with highest information gain
+    gains = {
+        attr: information_gain(df, attr, target)
+        for attr in attributes
+    }
+
+    best_attribute = max(gains, key=gains.get)
+
+    tree = {best_attribute: {}}
+
+    remaining = [a for a in attributes
+                 if a != best_attribute]
+
+    for value in df[best_attribute].unique():
+        subset = df[df[best_attribute] == value]
+
+        tree[best_attribute][value] = id3(
+            subset, remaining, target
+        )
+
+    return tree
+
+# Step 5: Prediction
+def predict(tree, sample):
+
+    if not isinstance(tree, dict):
+        return tree
+
+    attribute = next(iter(tree))
+    value = sample[attribute]
+
+    if value not in tree[attribute]:
+        return "Unknown"
+
+    return predict(tree[attribute][value], sample)
+
+# Execute ID3
+attributes = ['Income', 'Employment',
+              'Credit_History', 'Existing_Loan']
+
+print("Customer Loan Dataset:")
+print(df)
+
+print("\nEntropy:", round(entropy(df['Loan_Status']), 4))
+
+print("\nInformation Gain:")
+for attr in attributes:
+    print(attr, ":", round(
+        information_gain(df, attr, 'Loan_Status'), 4
+    ))
+
+tree = id3(df, attributes, 'Loan_Status')
+
+print("\nGenerated ID3 Decision Tree:")
+print(tree)
+
+# Test a new loan application
+new_customer = {
+    'Income': 'High',
+    'Employment': 'Permanent',
+    'Credit_History': 'Good',
+    'Existing_Loan': 'No'
+}
+
+result = predict(tree, new_customer)
+
+print("\nNew Customer Details:", new_customer)
+print("Loan Approval Prediction:", result)

@@ -1,0 +1,50 @@
+
+# Simple Reflex Agent for Vacuum World
+
+# Four-room environment
+rooms = {
+    'A': 'Dirty',
+    'B': 'Dirty',
+    'C': 'Clean',
+    'D': 'Dirty'
+}
+
+# Initial location
+location = 'A'
+
+print("Initial Room Status:", rooms)
+print("\nVacuum Cleaning Process:\n")
+
+# Agent operates until all rooms are clean
+while 'Dirty' in rooms.values():
+
+    print("Current Location:", location)
+
+    # Check current room status
+    if rooms[location] == 'Dirty':
+        print("Room is Dirty")
+        print("Action: Suck")
+        rooms[location] = 'Clean'
+        print("Room Cleaned")
+
+    else:
+        print("Room is Clean")
+
+    # Move to next room
+    if 'Dirty' in rooms.values():
+        if location == 'A':
+            location = 'B'
+        elif location == 'B':
+            location = 'C'
+        elif location == 'C':
+            location = 'D'
+        elif location == 'D':
+            location = 'A'
+
+        print("Action: Move to", location)
+
+    print("Room Status:", rooms)
+    print()
+
+print("All rooms are clean!")
+print("Cleaning Completed Successfully.")

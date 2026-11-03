@@ -1,0 +1,96 @@
+
+# Artificial Neural Network Using Backpropagation
+
+import numpy as np
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Step 1: Load Dataset
+data = load_breast_cancer()
+X = data.data
+y = data.target.reshape(-1, 1)
+
+# Step 2: Preprocess Dataset
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Step 3: Define Sigmoid Activation Function
+def sigmoid(x):
+    x = np.clip(x, -500, 500)
+    return 1 / (1 + np.exp(-x))
+
+# Step 4: Initialize Neural Network
+np.random.seed(42)
+
+input_neurons = X_train.shape[1]
+hidden_neurons = 16
+output_neurons = 1
+
+W1 = np.random.randn(input_neurons, hidden_neurons) * 0.1
+b1 = np.zeros((1, hidden_neurons))
+
+W2 = np.random.randn(hidden_neurons, output_neurons) * 0.1
+b2 = np.zeros((1, output_neurons))
+
+# Step 5: Train using Backpropagation
+learning_rate = 0.1
+epochs = 1000
+
+for epoch in range(epochs):
+
+    # Forward Propagation
+    Z1 = np.dot(X_train, W1) + b1
+    A1 = sigmoid(Z1)
+
+    Z2 = np.dot(A1, W2) + b2
+    A2 = sigmoid(Z2)
+
+    # Backpropagation
+    error = A2 - y_train
+
+    dW2 = np.dot(A1.T, error) / len(X_train)
+    db2 = np.mean(error, axis=0, keepdims=True)
+
+    dA1 = np.dot(error, W2.T)
+    dZ1 = dA1 * A1 * (1 - A1)
+
+    dW1 = np.dot(X_train.T, dZ1) / len(X_train)
+    db1 = np.mean(dZ1, axis=0, keepdims=True)
+
+    # Update Weights and Biases
+    W2 -= learning_rate * dW2
+    b2 -= learning_rate * db2
+
+    W1 -= learning_rate * dW1
+    b1 -= learning_rate * db1
+
+# Step 6: Predict Unseen Samples
+Z1 = np.dot(X_test, W1) + b1
+A1 = sigmoid(Z1)
+
+Z2 = np.dot(A1, W2) + b2
+A2 = sigmoid(Z2)
+
+y_pred = (A2 >= 0.5).astype(int)
+
+# Step 7: Evaluate Model
+accuracy = accuracy_score(y_test, y_pred)
+cm = confusion_matrix(y_test, y_pred)
+
+print("Breast Cancer Classification using ANN")
+print("Total Test Samples:", len(X_test))
+print("Accuracy:", round(accuracy * 100, 2), "%")
+
+print("\nConfusion Matrix:")
+print(cm)
+
+print("\nSample Predictions:")
+for i in range(5):
+    result = data.target_names[y_pred[i][0]]
+    print("Sample", i + 1, ":", result)

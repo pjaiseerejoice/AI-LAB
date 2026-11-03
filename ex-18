@@ -1,0 +1,39 @@
+
+# Monkey and Banana Problem using State-Space Planning
+
+# Initial State
+monkey = "Door"
+box = "Window"
+banana = "Center"
+monkey_on_box = False
+has_banana = False
+
+print("Initial State:")
+print("Monkey:", monkey)
+print("Box:", box)
+print("Banana:", banana)
+
+# Step 1: Monkey moves to the box
+monkey = box
+print("\n1. Monkey moves to the box.")
+
+# Step 2: Monkey pushes the box below the banana
+box = banana
+monkey = banana
+print("2. Monkey pushes the box below the banana.")
+
+# Step 3: Monkey climbs onto the box
+monkey_on_box = True
+print("3. Monkey climbs onto the box.")
+
+# Step 4: Monkey grasps the banana
+if monkey_on_box and monkey == banana:
+    has_banana = True
+    print("4. Monkey grasps the banana.")
+
+# Goal Test
+print("\nFinal State:")
+if has_banana:
+    print("Goal Achieved: Monkey has the banana!")
+else:
+    print("Goal Not Achieved.")

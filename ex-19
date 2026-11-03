@@ -1,0 +1,26 @@
+
+# Towers of Hanoi using Recursion
+
+def tower_of_hanoi(n, source, auxiliary, destination):
+
+    if n == 1:
+        print("Move disk 1 from", source, "to", destination)
+        return
+
+    # Move n-1 disks to auxiliary rod
+    tower_of_hanoi(n - 1, source, destination, auxiliary)
+
+    # Move largest disk to destination
+    print("Move disk", n, "from", source, "to", destination)
+
+    # Move remaining disks to destination
+    tower_of_hanoi(n - 1, auxiliary, source, destination)
+
+
+# Main Program
+n = 3
+
+print("Towers of Hanoi Solution:")
+tower_of_hanoi(n, 'A', 'B', 'C')
+
+print("\nAll disks transferred successfully!")
